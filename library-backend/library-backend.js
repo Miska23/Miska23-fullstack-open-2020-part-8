@@ -31,7 +31,7 @@ let authors = [
  * Yksinkertaisuuden vuoksi tallennamme kuitenkin kirjan yhteyteen tekijän nimen
 */
 
-let books = [
+  let books = [
   {
     title: 'Clean Code',
     published: 2008,
@@ -102,29 +102,41 @@ const typeDefs = gql`
   type Query {
     bookCount(author: String): Int!
     authorCount: Int!
-    allBooks: [Book!]!
+    allBooks(author: String, genre: String): [Book]
     allAuthors: [Author!]!
   }
 `
 
 const resolvers = {
   Query: {
-    bookCount: (root, args) => args.author ? booksByAuthor(args.author) : books.length,
+    bookCount: (_root, args) => args.author ? bookCountByAuthor(args.author) : books.length,
     authorCount: () => authors.length, 
-    allBooks: () => books,
+    //TODO: refactor to return null when empty array is returned
+    allBooks: (_root, args) => { 
+      const {author, genre} = args
+      if (author && genre) {
+        return books.filter(book => book.author === author && book.genres.includes(genre))
+      } else if (author) {
+        return books.filter(book => book.author === author)
+      } else if (genre) {
+        return books.filter(book => book.genres.includes(genre))
+      } else {
+        return books;
+      }
+    },
     allAuthors: () => authors.map(author => author),
   },
 
   Author: {
-    bookCount: (root => booksByAuthor(root.name))
+    bookCount: (root => bookCountByAuthor(root.name))
   }
 }
 
-const booksByAuthor = (author) => {
+const bookCountByAuthor = (author) => {
   let counter = 0;
   books.forEach(book => book.author === author && counter++);
   return counter 
-} 
+}  
 
 const server = new ApolloServer({
   typeDefs,
