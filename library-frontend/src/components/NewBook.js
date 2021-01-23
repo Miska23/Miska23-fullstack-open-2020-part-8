@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
+import { useMutation } from '@apollo/client'
+import * as mutations from '../gql/mutations'
 
 const NewBook = (props) => {
   const [title, setTitle] = useState('')
-  const [author, setAuhtor] = useState('')
+  const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
+
+  const [ addBook ] = useMutation(mutations.ADD_BOOK)
 
   if (!props.show) {
     return null
@@ -13,12 +17,12 @@ const NewBook = (props) => {
 
   const submit = async (event) => {
     event.preventDefault()
-    
-    console.log('add book...')
+
+    addBook({  variables: { title, author, published: Number(published), genres } })
 
     setTitle('')
+    setAuthor('')
     setPublished('')
-    setAuhtor('')
     setGenres([])
     setGenre('')
   }
@@ -42,7 +46,7 @@ const NewBook = (props) => {
           author
           <input
             value={author}
-            onChange={({ target }) => setAuhtor(target.value)}
+            onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
         <div>

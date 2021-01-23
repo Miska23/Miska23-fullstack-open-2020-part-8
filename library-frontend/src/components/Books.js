@@ -6,10 +6,6 @@ const Books = ({ books, show }) => {
     return null
   }
 
-  console.log('books === ', books)
-
-  //const books = []
-
   return (
     <div>
       <h2>books</h2>
