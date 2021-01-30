@@ -94,7 +94,7 @@ const resolvers = {
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
     allBooks: async () => Book.find({}).populate('author').exec(),
-    allAuthors: async () => Author.find({}).populate('author').exec(),
+    allAuthors: () => Author.find({}),
   },
   // Author: {
   //   bookCount: (root => {
@@ -119,9 +119,9 @@ const resolvers = {
         genres: args.genres,
       })
 
-      console.log('book === ', book)
-
-      return book.save()
+      const savedBook = await book.save()
+      const populatedBook = await Book.findOne({ _id: savedBook._id }).populate('author').exec()
+      return populatedBook
     }
     //   editAuthor(_root, args) {
     //     const { name, setBornTo } = args
