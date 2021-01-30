@@ -84,19 +84,36 @@ let books = [
   },
 ]
 
+// version 1 without backend:
+// type Book {
+//   title: String!
+//   author: String!
+//   published: Int!
+//   genres: [String!]!
+//   id: ID!
+// }
+
+// version 1 without backend:
+// type Author {
+//   name: String!
+//   born: Int
+//   bookCount: Int!
+//   id: ID!
+// }
+
 const typeDefs = gql`
+
   type Book {
     title: String!
-    author: String!
     published: Int!
-    genres: [String!]! 
+    author: Author!
+    genres: [String!]!
     id: ID!
   }
 
   type Author {
     name: String!
     born: Int
-    bookCount: Int!
     id: ID!
   }
 

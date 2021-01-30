@@ -5,16 +5,20 @@
   "main": "library-backend.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon library-backend.js"
+    "start": "nodemon index.js"
   },
   "author": "Miska Linden",
   "license": "ISC",
   "dependencies": {
     "apollo-server": "^2.19.1",
+    "dotenv": "^8.2.0",
     "graphql": "^15.4.0",
+    "mongoose": "^5.11.14",
+    "mongoose-unique-validator": "^2.0.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^7.18.0",
     "nodemon": "^2.0.7"
   }
