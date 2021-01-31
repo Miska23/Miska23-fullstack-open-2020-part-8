@@ -107,11 +107,7 @@ const resolvers = {
       return author.save()
     },
     addBook: async (_root, args) => {
-
-      console.log('args === ', args)
       const author = await Author.findOne({ name: args.author }).exec()
-
-      console.log('author === ', author)
       const book = new Book({
         title: args.title,
         published: args.published,
@@ -136,7 +132,6 @@ const resolvers = {
     //   }
   }
 }
-
 
 const server = new ApolloServer({
   typeDefs,

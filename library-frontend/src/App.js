@@ -10,8 +10,8 @@ const App = () => {
   const [page, setPage] = useState('authors')
   const [errorMessage, setErrorMessage] = useState(null)
 
-  // const books = useQuery(queries.ALL_BOOKS)
-  // const authors = useQuery(queries.ALL_AUTHORS)
+  const books = useQuery(queries.ALL_BOOKS)
+  const authors = useQuery(queries.ALL_AUTHORS)
 
   const notify = (message) => {
     setErrorMessage(message)
@@ -20,43 +20,40 @@ const App = () => {
     }, 10000)
   }
 
-  // console.log('authors ===', authors)
-  // console.log('books ===', books)
-
-  // if (!books.loading && !authors.loading)  {
-  return (
-    <div>
+  if (!books.loading && !authors.loading)  {
+    return (
       <div>
-        <button onClick={() => setPage('authors')}>authors</button>
-        <button onClick={() => setPage('books')}>books</button>
-        <button onClick={() => setPage('add')}>add book</button>
-      </div>
+        <div>
+          <button onClick={() => setPage('authors')}>authors</button>
+          <button onClick={() => setPage('books')}>books</button>
+          <button onClick={() => setPage('add')}>add book</button>
+        </div>
 
-      <Notify
-        errorMessage={errorMessage}
-      />
+        <Notify
+          errorMessage={errorMessage}
+        />
 
-      {/* <Authors
+        <Authors
           authors={authors.data.allAuthors}
           setError={notify}
           show={page === 'authors'}
-        /> */}
+        />
 
-      {/* <Books
+        <Books
           show={page === 'books'}
           books={books.data.allBooks}
-        /> */}
+        />
 
-      <NewBook
-        show={page === 'add'}
-      />
+        <NewBook
+          show={page === 'add'}
+        />
 
 
-    </div>
-  )
-  // } else {
-  // return <div>loading...</div>
-  // }
+      </div>
+    )
+  } else {
+    return <div>loading...</div>
+  }
 
 
 }

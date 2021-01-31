@@ -5,7 +5,6 @@ const ALL_AUTHORS = gql`
     allAuthors {
       name 
       born 
-      bookCount
       id
     }
   }
@@ -14,7 +13,11 @@ const ALL_BOOKS = gql`
   query getAllBooks($author: String, $genre: String){
     allBooks(author: $author, genre: $genre) {
       title 
-      author 
+      author {
+        name
+        born
+        id
+      }
       published
       genres
       id
