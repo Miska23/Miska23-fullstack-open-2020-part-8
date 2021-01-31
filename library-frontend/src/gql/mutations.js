@@ -17,6 +17,7 @@ const ADD_BOOK = gql`
       author {
         name
         born
+        bookCount
         id
       } 
       published
@@ -27,11 +28,11 @@ const ADD_BOOK = gql`
 `
 const EDIT_AUTHOR = gql`
   mutation editAuthorBirthyear(
-    $name: String!, 
+    $id: ID!, 
     $setBornTo: Int!, 
     ){
       editAuthor(
-      name: $name, 
+      id: $id, 
       setBornTo: $setBornTo, 
     ){
       name
@@ -43,5 +44,5 @@ const EDIT_AUTHOR = gql`
 `
 
 
-export { ADD_BOOK, EDIT_AUTHOR }
+export { ADD_BOOK,  EDIT_AUTHOR }
 

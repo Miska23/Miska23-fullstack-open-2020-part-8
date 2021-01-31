@@ -58,6 +58,7 @@ const typeDefs = gql`
   type Author {
     name: String!
     born: Int
+    bookCount: Int
     id: ID!
   }
 
@@ -86,6 +87,7 @@ const typeDefs = gql`
       name: String!
       born: Int
       ): Author
+    editAuthor(id: ID!, setBornTo: Int!): Author
   }
 
 `
@@ -93,14 +95,14 @@ const resolvers = {
   Query: {
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
-    allBooks: async () => Book.find({}).populate('author').exec(),
+    allBooks: () => Book.find({}).populate('author').exec(),
     allAuthors: () => Author.find({}),
   },
-  // Author: {
-  //   bookCount: (root => {
-  //     return books.filter(book => book.author === root.name).length
-  //   })
-  // },
+  Author:  {
+    bookCount: (root => {
+      return Book.find({ author: { $in: [root.id] } }).countDocuments()
+    })
+  },
   Mutation: {
     addAuthor: (_root, args) => {
       const author = new Author({ ...args })
@@ -118,10 +120,11 @@ const resolvers = {
       const savedBook = await book.save()
       const populatedBook = await Book.findOne({ _id: savedBook._id }).populate('author').exec()
       return populatedBook
-    }
-    //   editAuthor(_root, args) {
-    //     const { name, setBornTo } = args
-    //     const author = authors.find(a => a.name === name)
+    },
+    editAuthor: async (_root, args) => {
+      const { setBornTo, id } = args
+      return Author.findByIdAndUpdate(id, { born: setBornTo }, { new: true })
+
     //     if (author) {
     //       author.born = setBornTo
     //       authors = authors.map(a => a.id === author.id ? author : a)
@@ -129,7 +132,7 @@ const resolvers = {
     //     } else {
     //       return null
     //     }
-    //   }
+    }
   }
 }
 

@@ -5,6 +5,7 @@ const ALL_AUTHORS = gql`
     allAuthors {
       name 
       born 
+      bookCount
       id
     }
   }
@@ -16,6 +17,7 @@ const ALL_BOOKS = gql`
       author {
         name
         born
+        bookCount
         id
       }
       published
