@@ -5,7 +5,7 @@ import * as queries from '../gql/queries'
 
 const UpdateAuthorBirthyear = ({ authors, setError }) => {
   const [birthyear, setBirthyear] = useState('')
-  const [authorId, setAuthorId] = useState(authors[0].id)
+  const [author, setAuthor] = useState(authors[0].name)
 
   const [ editAuthor ] = useMutation(mutations.EDIT_AUTHOR, {
     refetchQueries: [ { query: queries.ALL_AUTHORS }],
@@ -15,22 +15,22 @@ const UpdateAuthorBirthyear = ({ authors, setError }) => {
   const submit = async (event) => {
     event.preventDefault()
 
-    const response = await editAuthor({  variables: { id: authorId, setBornTo: Number(birthyear) } })
+    const response = await editAuthor({  variables: { author, setBornTo: Number(birthyear) } })
 
     if (response.data.editAuthor === null) {
       setError('Author not found')
     }
 
     setBirthyear('')
-    setAuthorId('')
+    setAuthor('')
   }
 
   return (
     <div>
       <h2>Set birthyear</h2>
       <form>
-        <select value={authorId} onChange={(event) => setAuthorId(event.target.value)}>
-          {authors.map(author => <option key={author.id} value={author.id}>{author.name}</option>)}
+        <select value={author} onChange={(event) => setAuthor(event.target.value)}>
+          {authors.map(author => <option key={author.id} value={author.name}>{author.name}</option>)}
         </select>
       </form>
       <form onSubmit={submit}>

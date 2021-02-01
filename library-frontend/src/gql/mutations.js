@@ -28,11 +28,11 @@ const ADD_BOOK = gql`
 `
 const EDIT_AUTHOR = gql`
   mutation editAuthorBirthyear(
-    $id: ID!, 
+    $author: String!, 
     $setBornTo: Int!, 
     ){
       editAuthor(
-      id: $id, 
+      author: $author, 
       setBornTo: $setBornTo, 
     ){
       name

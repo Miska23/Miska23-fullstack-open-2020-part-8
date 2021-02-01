@@ -18,41 +18,6 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
     console.log('error connection to MongoDB:', error.message)
   })
 
-// ALL:
-// const typeDefs = gql`
-
-//   type Book {
-//     title: String!
-//     published: Int!
-//     author: Author!
-//     genres: [String!]!
-//     id: ID!
-//   }
-
-//   type Author {
-//     name: String!
-//     born: Int
-//     id: ID!
-//   }
-
-//   type Query {
-//     bookCount(author: String): Int!
-//     authorCount: Int!
-//     allBooks(author: String, genre: String): [Book]
-//     allAuthors: [Author!]!
-//   }
-
-// type Mutation {
-//   addBook(
-//     title: String!
-//     author: String!
-//     published: Int!
-//     genres: [String!]!
-//     ): Book
-//   editAuthor(name: String!, setBornTo: Int!): Author
-// }
-// `
-
 const typeDefs = gql`
 
   type Author {
@@ -87,7 +52,7 @@ const typeDefs = gql`
       name: String!
       born: Int
       ): Author
-    editAuthor(id: ID!, setBornTo: Int!): Author
+    editAuthor(author: String!, setBornTo: Int!): Author
   }
 
 `
@@ -122,16 +87,9 @@ const resolvers = {
       return populatedBook
     },
     editAuthor: async (_root, args) => {
-      const { setBornTo, id } = args
-      return Author.findByIdAndUpdate(id, { born: setBornTo }, { new: true })
-
-    //     if (author) {
-    //       author.born = setBornTo
-    //       authors = authors.map(a => a.id === author.id ? author : a)
-    //       return author
-    //     } else {
-    //       return null
-    //     }
+      const { setBornTo, author } = args
+      const authorToEdit = await Author.findOne({ name: author }).exec()
+      return Author.findByIdAndUpdate(authorToEdit._id, { born: setBornTo }, { new: true })
     }
   }
 }
