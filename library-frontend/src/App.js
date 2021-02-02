@@ -41,11 +41,13 @@ const App = () => {
 
         <Books
           show={page === 'books'}
+          setError={notify}
           books={books.data.allBooks}
         />
 
         <NewBook
           show={page === 'add'}
+          setError={notify}
         />
 
 

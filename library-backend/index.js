@@ -1,4 +1,4 @@
-const { ApolloServer,/*  UserInputError, */ gql } = require('apollo-server')
+const { ApolloServer,  UserInputError,  gql } = require('apollo-server')
 const mongoose = require('mongoose')
 const Author = require('./models/author')
 const Book = require('./models/book')
@@ -69,12 +69,17 @@ const resolvers = {
     })
   },
   Mutation: {
-    addAuthor: (_root, args) => {
+    addAuthor: (_root, args) => { // not used on UI!
       const author = new Author({ ...args })
       return author.save()
     },
     addBook: async (_root, args) => {
-      const author = await Author.findOne({ name: args.author }).exec()
+      //TODO: handle errors also for author finding/saving
+      let author = await Author.findOne({ name: args.author }).exec()
+      if (!author) {
+        author = new Author({ name: args.author })
+        author = await author.save()
+      }
       const book = new Book({
         title: args.title,
         published: args.published,
@@ -82,8 +87,16 @@ const resolvers = {
         genres: args.genres,
       })
 
-      const savedBook = await book.save()
-      const populatedBook = await Book.findOne({ _id: savedBook._id }).populate('author').exec()
+      let populatedBook
+      try {
+        const savedBook = await book.save()
+        populatedBook = await Book.findOne({ _id: savedBook._id }).populate('author').exec()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args,
+        })
+      }
+
       return populatedBook
     },
     editAuthor: async (_root, args) => {
