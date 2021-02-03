@@ -54,7 +54,6 @@ const typeDefs = gql`
       ): Author
     editAuthor(author: String!, setBornTo: Int!): Author
   }
-
 `
 const resolvers = {
   Query: {
@@ -69,16 +68,28 @@ const resolvers = {
     })
   },
   Mutation: {
-    addAuthor: (_root, args) => { // not used on UI!
+    addAuthor: async (_root, args) => { // not used on UI!
       const author = new Author({ ...args })
-      return author.save()
+      try {
+        await author.save()
+      } catch (error) {
+        throw new UserInputError(error.message, {
+          invalidArgs: args,
+        })
+      }
+      return author
     },
     addBook: async (_root, args) => {
-      //TODO: handle errors also for author finding/saving
       let author = await Author.findOne({ name: args.author }).exec()
       if (!author) {
         author = new Author({ name: args.author })
-        author = await author.save()
+        try {
+          await author.save()
+        } catch (error) {
+          throw new UserInputError(error.message, {
+            invalidArgs: args,
+          })
+        }
       }
       const book = new Book({
         title: args.title,
@@ -87,21 +98,23 @@ const resolvers = {
         genres: args.genres,
       })
 
-      let populatedBook
+      let newBook
       try {
-        const savedBook = await book.save()
-        populatedBook = await Book.findOne({ _id: savedBook._id }).populate('author').exec()
+        await book.save()
+        newBook = await Book.findOne({ _id: book._id }).populate('author').exec()
       } catch (error) {
         throw new UserInputError(error.message, {
           invalidArgs: args,
         })
       }
-
-      return populatedBook
+      return newBook
     },
     editAuthor: async (_root, args) => {
       const { setBornTo, author } = args
       const authorToEdit = await Author.findOne({ name: author }).exec()
+      if (!authorToEdit) {
+        return null
+      }
       return Author.findByIdAndUpdate(authorToEdit._id, { born: setBornTo }, { new: true })
     }
   }
