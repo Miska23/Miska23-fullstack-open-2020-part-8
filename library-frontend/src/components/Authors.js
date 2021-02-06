@@ -2,7 +2,7 @@
 import React from 'react'
 import UpdateAuthorBirthyear from './UpdateAuthorBirthyear'
 
-const Authors = ({ authors, setError, show }) => {
+const Authors = ({ authors, setError, show, authenticated }) => {
   if (!show) {
     return null
   }
@@ -30,7 +30,7 @@ const Authors = ({ authors, setError, show }) => {
           )}
         </tbody>
       </table>
-      <UpdateAuthorBirthyear setError={setError} authors={authors} />
+      {authenticated && <UpdateAuthorBirthyear setError={setError} authors={authors} />}
     </div>
   )
 }

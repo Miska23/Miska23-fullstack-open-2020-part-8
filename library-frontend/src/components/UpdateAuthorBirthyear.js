@@ -42,7 +42,7 @@ const UpdateAuthorBirthyear = ({ authors, setError }) => {
             onChange={({ target }) => setBirthyear(target.value)}
           />
         </div>
-        <button type='submit'>update author</button>
+        <button type='submit' disabled={birthyear === ''}>update author</button>
       </form>
     </div>
   )
