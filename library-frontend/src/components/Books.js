@@ -16,9 +16,7 @@ const Books = ({ books, show }) => {
   const getGenreList = (books) => {
     const genreList = []
     books.map(book => {
-      console.log('book.genres === ', book.genres)
       return book.genres.map(genre => {
-        console.log('genre === ', genre)
         return !genreList.includes(genre) && genreList.push(genre)
       })
     })

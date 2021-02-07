@@ -1,4 +1,3 @@
-import userEvent from '@testing-library/user-event'
 import React from 'react'
 
 
@@ -15,7 +14,7 @@ const Recommendations = ({ books, currentUser, show }) => {
   return (
     <div>
       <h2>recommendations</h2>
-      <div>books in your favorite genre {userEvent.favoriteGenre}</div>
+      <div>books in your favorite genre {currentUser.favoriteGenre}</div>
       <table>
         <tbody>
           <tr>

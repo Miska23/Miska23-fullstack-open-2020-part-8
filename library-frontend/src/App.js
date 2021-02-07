@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useApolloClient, useQuery } from '@apollo/client'
 import * as queries from './gql/queries'
 import Authors from './components/Authors'
@@ -12,6 +12,17 @@ const App = () => {
   const [page, setPage] = useState('authors')
   const [errorMessage, setErrorMessage] = useState(null)
   const [token, setToken] = useState(null)
+
+  useEffect(() => {
+    const token = localStorage.getItem('booklist-user-token')
+    console.log('App.js / useEffect / token === ', token)
+    token
+      ?
+      setToken(token)
+      :
+      setToken(null)
+  }, [])
+
   const client = useApolloClient()
 
   const books = useQuery(queries.ALL_BOOKS)
@@ -31,10 +42,9 @@ const App = () => {
     client.resetStore()
   }
 
-  if (!books.loading && !authors.loading && !currentUser.loading) {
+  if (!books.loading && !authors.loading) {
     return (
       <>
-        {console.log('currentUser.data.me === ', currentUser.data.me)}
         <div>
           <button onClick={() => setPage('authors')}>authors</button>
           <button onClick={() => setPage('books')}>books</button>
@@ -63,8 +73,9 @@ const App = () => {
         />}
         {token &&
         <Recommendations
+          books={books.data.allBooks}
           show={page === 'recommendations'}
-          currentUser={currentUser}
+          currentUser={currentUser.data.me}
         />}
         {!token &&
           <div>
