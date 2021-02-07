@@ -1,15 +1,43 @@
-import React from 'react'
-
+import React, { useState } from 'react'
+import GenreList from './GenreList'
 
 const Books = ({ books, show }) => {
+
+  const [selectedGenre, setSelectedGenre] = useState(null)
+
+  const onSelectGenre = (genre) => {
+    genre === selectedGenre
+      ?
+      setSelectedGenre(null)
+      :
+      setSelectedGenre(genre)
+  }
+
+  const getGenreList = (books) => {
+    const genreList = []
+    books.map(book => {
+      console.log('book.genres === ', book.genres)
+      return book.genres.map(genre => {
+        console.log('genre === ', genre)
+        return !genreList.includes(genre) && genreList.push(genre)
+      })
+    })
+    return genreList
+  }
+
+  const getBooks = (books) => {
+    return  !selectedGenre ? books : books.filter(book => book.genres.includes(selectedGenre))
+  }
+
   if (!show) {
+    selectedGenre !== null && setSelectedGenre(null)
     return null
   }
+
 
   return (
     <div>
       <h2>books</h2>
-
       <table>
         <tbody>
           <tr>
@@ -21,7 +49,7 @@ const Books = ({ books, show }) => {
               published
             </th>
           </tr>
-          {books.map(a =>
+          {getBooks(books).map(a =>
             <tr key={a.title}>
               <td>{a.title}</td>
               <td>{a.author.name}</td>
@@ -30,6 +58,7 @@ const Books = ({ books, show }) => {
           )}
         </tbody>
       </table>
+      <GenreList genres={getGenreList(books)} onSelectGenre={onSelectGenre} selectedGenre={selectedGenre} />
     </div>
   )
 }
