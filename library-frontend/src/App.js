@@ -15,7 +15,6 @@ const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('booklist-user-token')
-    console.log('App.js / useEffect / token === ', token)
     token
       ?
       setToken(token)

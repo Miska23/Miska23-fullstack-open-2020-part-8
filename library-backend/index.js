@@ -75,7 +75,18 @@ const resolvers = {
   Query: {
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
-    allBooks: () => Book.find({}).populate('author').exec(),
+    allBooks: async (_root, args) => {
+      const { genre } = args
+      console.log('allBooks 1 / genre === ', genre)
+      if (genre) {
+        const allBooks = await Book.find({}).populate('author').exec()
+        console.log('allBooks 2 / allBooks === ', allBooks)
+        const allBooksByGenre = allBooks.filter(book => book.genres.includes(genre))
+        console.log('allBooks 3 / allBooksByGenre === ', allBooksByGenre)
+        return allBooksByGenre
+      }
+      return Book.find({}).populate('author').exec()
+    },
     allAuthors: () => Author.find({}),
     me: (_root, _args, { currentUser }) => {
       return currentUser
@@ -174,8 +185,6 @@ const server = new ApolloServer({
   resolvers,
   context: async ({ req }) => {
     const auth = req ? req.headers.authorization : null
-    console.log('auth === ', auth)
-
     if (auth && auth.toLowerCase().startsWith('bearer ')) {
       const decodedToken = jwt.verify(
         auth.substring(7), config.SECRET

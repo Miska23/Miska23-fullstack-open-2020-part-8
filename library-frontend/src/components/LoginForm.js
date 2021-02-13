@@ -20,9 +20,7 @@ const LoginForm = ({ setError, setToken, show }) => {
     }
   }, [result.data]) // eslint-disable-line
 
-  const submit = async (event) => {
-    event.preventDefault()
-
+  const submit = async () => {
     login({ variables: { username, password } })
   }
 
