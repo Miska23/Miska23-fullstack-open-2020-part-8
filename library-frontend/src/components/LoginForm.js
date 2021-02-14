@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { useMutation } from '@apollo/client'
+import { useMutation, useApolloClient } from '@apollo/client'
 import { LOGIN } from '../gql/mutations'
 
 const LoginForm = ({ setError, setToken, show }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+
+  const client = useApolloClient()
 
   const [ login, result ] = useMutation(LOGIN, {
     onError: (error) => {
@@ -16,11 +18,14 @@ const LoginForm = ({ setError, setToken, show }) => {
     if ( result.data ) {
       const token = result.data.login.value
       setToken(token)
+      localStorage.setItem('booklist-user-token', token)
+      client.resetStore()
     }
   }, [result.data]) // eslint-disable-line
 
-  const submit = async () => {
-    login({ variables: { username, password } })
+  const submit = async (event) => {
+    event.preventDefault()
+    await login({ variables: { username, password } })
   }
 
   if (!show) {
