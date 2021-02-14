@@ -9,14 +9,13 @@ const LoginForm = ({ setError, setToken, show }) => {
   const [ login, result ] = useMutation(LOGIN, {
     onError: (error) => {
       setError(error.graphQLErrors[0].message)
-    }
+    },
   })
 
   useEffect(() => {
     if ( result.data ) {
       const token = result.data.login.value
       setToken(token)
-      localStorage.setItem('booklist-user-token', token)
     }
   }, [result.data]) // eslint-disable-line
 

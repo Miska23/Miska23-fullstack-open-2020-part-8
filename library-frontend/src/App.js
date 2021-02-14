@@ -41,14 +41,13 @@ const App = () => {
     }
   }, [allBooks.loading, allBooks.data])
 
-  // getBooksByGenre / clear selected genre hook
+  // getBooksByGenre (selectedGenre) hook
   useEffect(() => {
     if (selectedGenre !== null) {
+      console.log('ue 1')
       getBooksByGenre({ variables: { genre: selectedGenre } })
-    } else if (selectedGenre === null && books !== null){
-      setBooks(allBooks.data.allBooks)
     }
-  }, [selectedGenre])
+  }, [selectedGenre, getBooksByGenre])
 
   // booksByGenre hook
   useEffect(() => {
@@ -71,7 +70,12 @@ const App = () => {
   }
 
   const onSelectGenre = (genre) => {
-    setSelectedGenre(genre === selectedGenre ? null : genre)
+    if (genre !== selectedGenre) {
+      setSelectedGenre(genre)
+    } else {
+      setSelectedGenre(null)
+      setBooks(allBooks.data.allBooks)
+    }
   }
 
   const getGenresFromAllBooks = (books) => {
@@ -84,15 +88,25 @@ const App = () => {
     setGenres(genreList)
   }
 
+  const onSelectPage = (event) => {
+    setPage(event.target.value)
+    if (event.target.value === 'recommendations') {
+      setSelectedGenre(currentUser.data.me.favoriteGenre)
+    } else {
+      setSelectedGenre(null)
+      setBooks(allBooks.data.allBooks)
+    }
+  }
+
   if (books && !authors.loading) {
     return (
       <>
         <div>
-          <button onClick={() => setPage('authors')}>authors</button>
-          <button onClick={() => setPage('books')}>books</button>
-          {token && <button onClick={() => setPage('add')}>add book</button>}
-          {token && <button onClick={() => setPage('recommendations')}>recommendations</button>}
-          {token === null ? <button onClick={() => setPage('login')}>login</button> : <button onClick={() => logout()}>logout</button>}
+          <button value='authors' onClick={onSelectPage}>authors</button>
+          <button value='books' onClick={onSelectPage}>books</button>
+          {token && <button value='add' onClick={onSelectPage}>add book</button>}
+          {token && <button value='recommendations' onClick={onSelectPage}>recommendations</button>}
+          {token === null ? <button value='login' onClick={onSelectPage}>login</button> : <button onClick={() => logout()}>logout</button>}
         </div>
         <Notify
           errorMessage={errorMessage}

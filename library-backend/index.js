@@ -77,12 +77,9 @@ const resolvers = {
     authorCount: () => Author.collection.countDocuments(),
     allBooks: async (_root, args) => {
       const { genre } = args
-      console.log('allBooks 1 / genre === ', genre)
       if (genre) {
         const allBooks = await Book.find({}).populate('author').exec()
-        console.log('allBooks 2 / allBooks === ', allBooks)
         const allBooksByGenre = allBooks.filter(book => book.genres.includes(genre))
-        console.log('allBooks 3 / allBooksByGenre === ', allBooksByGenre)
         return allBooksByGenre
       }
       return Book.find({}).populate('author').exec()
@@ -115,7 +112,6 @@ const resolvers = {
       if ( !user || password !== 'secret' ) {
         throw new UserInputError('wrong credentials')
       }
-
       const userForToken = {
         username: user.username,
         id: user._id,
