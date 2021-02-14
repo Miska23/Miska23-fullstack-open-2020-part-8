@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useApolloClient, useQuery } from '@apollo/client'
+import { useApolloClient, useQuery, useLazyQuery } from '@apollo/client'
 import * as queries from './gql/queries'
 import Authors from './components/Authors'
 import Books from './components/Books'
@@ -9,10 +9,21 @@ import LoginForm from './components/LoginForm'
 import Recommendations from './components/Recommendations'
 
 const App = () => {
+  const client = useApolloClient()
+
   const [page, setPage] = useState('authors')
   const [errorMessage, setErrorMessage] = useState(null)
   const [token, setToken] = useState(null)
+  const [selectedGenre, setSelectedGenre] = useState(null)
+  const [books, setBooks] = useState(null)
+  const [genres, setGenres] = useState(null)
 
+  const allBooks = useQuery(queries.ALL_BOOKS)
+  const authors = useQuery(queries.ALL_AUTHORS)
+  const currentUser = useQuery(queries.ME)
+  const [getBooksByGenre, booksByGenre] = useLazyQuery(queries.ALL_BOOKS)
+
+  // token hook
   useEffect(() => {
     const token = localStorage.getItem('booklist-user-token')
     token
@@ -22,11 +33,29 @@ const App = () => {
       setToken(null)
   }, [])
 
-  const client = useApolloClient()
+  // allbooks hook
+  useEffect(() => {
+    if (!allBooks.loading && allBooks.data) {
+      setBooks(allBooks.data.allBooks)
+      getGenresFromAllBooks(allBooks.data.allBooks)
+    }
+  }, [allBooks.loading, allBooks.data])
 
-  const books = useQuery(queries.ALL_BOOKS)
-  const authors = useQuery(queries.ALL_AUTHORS)
-  const currentUser = useQuery(queries.ME)
+  // getBooksByGenre / clear selected genre hook
+  useEffect(() => {
+    if (selectedGenre !== null) {
+      getBooksByGenre({ variables: { genre: selectedGenre } })
+    } else if (selectedGenre === null && books !== null){
+      setBooks(allBooks.data.allBooks)
+    }
+  }, [selectedGenre])
+
+  // booksByGenre hook
+  useEffect(() => {
+    if (!booksByGenre.loading && booksByGenre.data) {
+      setBooks(booksByGenre.data.allBooks)
+    }
+  }, [booksByGenre.loading, booksByGenre.data])
 
   const notify = (message) => {
     setErrorMessage(message)
@@ -41,7 +70,21 @@ const App = () => {
     client.resetStore()
   }
 
-  if (!books.loading && !authors.loading) {
+  const onSelectGenre = (genre) => {
+    setSelectedGenre(genre === selectedGenre ? null : genre)
+  }
+
+  const getGenresFromAllBooks = (books) => {
+    const genreList = []
+    books.map(book => {
+      return book.genres.map(genre => {
+        return !genreList.includes(genre) && genreList.push(genre)
+      })
+    })
+    setGenres(genreList)
+  }
+
+  if (books && !authors.loading) {
     return (
       <>
         <div>
@@ -63,7 +106,10 @@ const App = () => {
         <Books
           show={page === 'books'}
           setError={notify}
-          books={books.data.allBooks}
+          genres={genres}
+          onSelectGenre={onSelectGenre}
+          books={books}
+          selectedGenre={selectedGenre}
         />
         {token &&
         <NewBook
@@ -72,7 +118,7 @@ const App = () => {
         />}
         {token &&
         <Recommendations
-          books={books.data.allBooks}
+          books={books}
           show={page === 'recommendations'}
           currentUser={currentUser.data.me}
         />}
