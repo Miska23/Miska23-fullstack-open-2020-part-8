@@ -1,10 +1,14 @@
 const { ApolloServer, AuthenticationError, UserInputError,  gql } = require('apollo-server')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
+const { PubSub } = require('apollo-server')
 const Author = require('./models/author')
 const Book = require('./models/book')
 const User = require('./models/user')
 const config = require('./config')
+
+const pubsub = new PubSub()
+
 
 mongoose.set('useFindAndModify', false)
 
@@ -70,7 +74,11 @@ const typeDefs = gql`
       ): Author
     editAuthor(author: String!, setBornTo: Int!): Author
   }
+  type Subscription {
+    bookAdded: Book!
+  }    
 `
+
 const resolvers = {
   Query: {
     bookCount: () => Book.collection.countDocuments(),
@@ -151,7 +159,9 @@ const resolvers = {
       })
       try {
         await book.save()
-        return Book.findOne({ _id: book._id }).populate('author').exec()
+        const populatedBook = await Book.findOne({ _id: book._id }).populate('author').exec()
+        pubsub.publish('BOOK_ADDED', { bookAdded: populatedBook })
+        return populatedBook
       } catch (error) {
         throw new UserInputError(error.message, {
           invalidArgs: args,
@@ -173,7 +183,12 @@ const resolvers = {
       }
       return Author.findByIdAndUpdate(authorToEdit._id, { born: setBornTo }, { new: true })
     }
-  }
+  },
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator(['BOOK_ADDED'])
+    },
+  },
 }
 
 const server = new ApolloServer({
@@ -191,6 +206,7 @@ const server = new ApolloServer({
   }
 })
 
-server.listen().then(({ url }) => {
+server.listen().then(({ url, subscriptionsUrl }) => {
   console.log(`Server ready at ${url}`)
+  console.log(`Subscriptions ready at ${subscriptionsUrl}`)
 })

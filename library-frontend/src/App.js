@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { useApolloClient, useQuery, useLazyQuery } from '@apollo/client'
+import { useApolloClient, useQuery, useLazyQuery, useSubscription } from '@apollo/client'
 import * as queries from './gql/queries'
+import { BOOK_ADDED } from './gql/subscriptions'
 import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
@@ -22,6 +23,12 @@ const App = () => {
   const authors = useQuery(queries.ALL_AUTHORS)
   const currentUser = useQuery(queries.ME)
   const [getBooksByGenre, booksByGenre] = useLazyQuery(queries.ALL_BOOKS)
+
+  useSubscription(BOOK_ADDED, {
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData)
+    }
+  })
 
   // token hook
   useEffect(() => {
