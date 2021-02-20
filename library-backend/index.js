@@ -72,7 +72,10 @@ const typeDefs = gql`
       name: String!
       born: Int
       ): Author
-    editAuthor(author: String!, setBornTo: Int!): Author
+    editAuthor(
+      author: String!, 
+      setBornTo: Int!): Author
+    removeAllBooks: String!,
   }
   type Subscription {
     bookAdded: Book!
@@ -182,6 +185,11 @@ const resolvers = {
         return null
       }
       return Author.findByIdAndUpdate(authorToEdit._id, { born: setBornTo }, { new: true })
+    },
+    removeAllBooks: async () => {
+      await Book.deleteMany({})
+      await Book.find({})
+      return 'All books removed'
     }
   },
   Subscription: {
