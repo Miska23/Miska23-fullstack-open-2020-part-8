@@ -24,9 +24,28 @@ const App = () => {
   const currentUser = useQuery(queries.ME)
   const [getBooksByGenre, booksByGenre] = useLazyQuery(queries.ALL_BOOKS)
 
+  const updateCacheWith = (addedBook) => {
+    const includedIn = (set, object) =>
+      set.map(p => p.id).includes(object.id)
+
+    const dataInStore = client.readQuery({ query: queries.ALL_BOOKS })
+    if (!includedIn(dataInStore.allBooks, addedBook)) {
+      client.writeQuery({
+        query: queries.ALL_BOOKS,
+        data: { allBooks : dataInStore.allBooks.concat(addedBook) }
+      })
+    }
+    const dataInStoreAfterUpdate = client.readQuery({ query: queries.ALL_BOOKS }).allBooks
+    setBooks(dataInStoreAfterUpdate)
+    if (page === 'recommendations') {
+      getBooksByGenre({ variables: { genre: selectedGenre } })
+    }
+  }
+
   useSubscription(BOOK_ADDED, {
     onSubscriptionData: ({ subscriptionData }) => {
-      console.log(subscriptionData)
+      window.alert(`A new book ${subscriptionData.data.bookAdded.title} was added`)
+      updateCacheWith(subscriptionData.data.bookAdded)
     }
   })
 
@@ -51,7 +70,6 @@ const App = () => {
   // getBooksByGenre (selectedGenre) hook
   useEffect(() => {
     if (selectedGenre !== null) {
-      console.log('ue 1')
       getBooksByGenre({ variables: { genre: selectedGenre } })
     }
   }, [selectedGenre, getBooksByGenre])
