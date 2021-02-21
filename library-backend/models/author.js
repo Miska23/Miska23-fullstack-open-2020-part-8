@@ -12,4 +12,11 @@ const schema = new mongoose.Schema({
   },
 })
 
+schema.virtual('bookCount', {
+  ref: 'Book',
+  localField: 'name',
+  foreignField: 'name',
+  count: true
+})
+
 module.exports = mongoose.model('Author', schema)

@@ -95,7 +95,13 @@ const resolvers = {
       }
       return Book.find({}).populate('author').exec()
     },
-    allAuthors: () => Author.find({}),
+    allAuthors: async () => {
+      const authors = await Author.find({}).populate({
+        path: 'bookCount',
+        populate: { path: 'author' }
+      })
+      return authors
+    },
     me: (_root, _args, { currentUser }) => {
       return currentUser
     }
